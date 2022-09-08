@@ -7,6 +7,7 @@ import com.finance.api.models.StockData;
 import com.finance.api.qualifiers.DataProvider;
 import com.finance.api.utils.DateUtils;
 import javax.inject.Inject;
+import java.text.SimpleDateFormat;
 
 @DataProvider("yahoo")
 public class YahooDataService implements DataService {
@@ -27,11 +28,13 @@ public class YahooDataService implements DataService {
 
     @Override
     public StockData stockData(String ticker, String startDate, String endDate) {
-        if(!DateUtils.isValidString(startDate) || !DateUtils.isValidString(endDate)){
+        SimpleDateFormat dateFormat = DateUtils.FORMAT2;
+        if(!DateUtils.isValidString(startDate, dateFormat) || !DateUtils.isValidString(endDate, dateFormat)){
             throw new IllegalArgumentException("The date cannot be parsed!");
         }
-        StockData data = getData(ticker, startDate, endDate);
-        return data;
+        startDate = DateUtils.changeFormat(startDate, dateFormat, DateUtils.FORMAT1);
+        endDate = DateUtils.changeFormat(endDate, dateFormat, DateUtils.FORMAT1);
+        return getData(ticker, startDate, endDate);
     }
 
 }

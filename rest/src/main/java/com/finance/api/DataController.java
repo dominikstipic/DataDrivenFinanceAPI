@@ -27,6 +27,18 @@ public class DataController {
         return Response.ok().build();
     }
 
+    @GET
+    @Path("/")
+    public Response getData(@QueryParam("ticker") String ticker,
+                            @QueryParam("start") String startDate,
+                            @QueryParam("end") String endDate,
+                            @QueryParam("type") String dataType,
+                            @QueryParam("frequency") String frequency){
+        System.out.println(ticker);
+        StockData data = dataService.stockData(ticker, startDate, endDate);
+        return Response.ok(data).build();
+    }
+
     @POST
     @Path("/")
     public Response getData(List<String> tickers,
