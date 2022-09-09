@@ -1,20 +1,22 @@
 package com.finance.api.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.finance.api.serializers.TimeSeriesSerializer;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Data
 @ToString
 @NoArgsConstructor
+@JsonSerialize(using = TimeSeriesSerializer.class)
 public class TimeSeries<D extends Comparable, V extends Number> {
     @JsonIgnore
-    private List<D> times = new LinkedList<>();
-    private Map<D, V> series = new HashMap<>();
+    private final List<D> times = new LinkedList<>();
+
+    private final Map<D, V> series = new HashMap<>();
 
     public void add(D time, V value){
         series.put(time, value);
@@ -48,4 +50,17 @@ public class TimeSeries<D extends Comparable, V extends Number> {
         }
         return returns;
     }
+
+    public List<D> getTimes() {
+        return times;
+    }
+
+    public List<V> getValues() {
+        return times.
+                stream().
+                map(series::get).
+                collect(Collectors.toList());
+    }
+
+
 }
