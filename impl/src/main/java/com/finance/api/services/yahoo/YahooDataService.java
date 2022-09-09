@@ -1,5 +1,6 @@
 package com.finance.api.services.yahoo;
 
+import com.finance.api.models.TimeSeries;
 import com.finance.api.providers.RestClient;
 import com.finance.api.qualifiers.ProviderClient;
 import com.finance.api.services.DataService;
@@ -8,6 +9,7 @@ import com.finance.api.qualifiers.DataProvider;
 import com.finance.api.utils.DateUtils;
 import javax.inject.Inject;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @DataProvider("yahoo")
 public class YahooDataService implements DataService {
@@ -37,4 +39,10 @@ public class YahooDataService implements DataService {
         return getData(ticker, startDate, endDate);
     }
 
+    @Override
+    public TimeSeries<Date, Double> assetReturns(String ticker, String startDate, String endDate) {
+        StockData data = stockData(ticker, startDate, endDate);
+        TimeSeries<Date, Number> adjPrice = data.getTimeseries().get(YahooAttributes.ADJ_CLOSE.getValue());
+        return adjPrice.getReturns();
+    }
 }

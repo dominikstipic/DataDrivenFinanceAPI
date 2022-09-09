@@ -2,6 +2,7 @@ package com.finance.api;
 
 
 import com.finance.api.models.StockData;
+import com.finance.api.models.TimeSeries;
 import com.finance.api.qualifiers.DataProvider;
 import com.finance.api.services.DataService;
 
@@ -9,13 +10,14 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Path("/data")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class DataController {
+public class DataRetrieverController {
 
     @Inject
     @DataProvider("yahoo")
@@ -28,14 +30,24 @@ public class DataController {
     }
 
     @GET
-    @Path("/")
-    public Response getData(@QueryParam("ticker") String ticker,
-                            @QueryParam("start") String startDate,
-                            @QueryParam("end") String endDate,
-                            @QueryParam("type") String dataType,
-                            @QueryParam("frequency") String frequency){
-        System.out.println(ticker);
+    @Path("/{ticker}")
+    public Response getRawData(@PathParam("ticker") String ticker,
+                               @QueryParam("start") String startDate,
+                               @QueryParam("end") String endDate,
+                               @QueryParam("type") String dataType,
+                               @QueryParam("frequency") String frequency){
         StockData data = dataService.stockData(ticker, startDate, endDate);
+        return Response.ok(data).build();
+    }
+
+    @GET
+    @Path("/returns/{ticker}")
+    public Response getReturns(@PathParam("ticker") String ticker,
+                               @QueryParam("start") String startDate,
+                               @QueryParam("end") String endDate,
+                               @QueryParam("type") String dataType,
+                               @QueryParam("frequency") String frequency){
+        TimeSeries<Date, Double> data = dataService.assetReturns(ticker, startDate, endDate);
         return Response.ok(data).build();
     }
 

@@ -1,32 +1,28 @@
 package com.finance.api.models;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
-
-import java.sql.Time;
 import java.util.*;
 
 @Data
 @ToString
 public class StockData {
     private final String ticker;
+    @JsonIgnore
     private List<Date> dates = new LinkedList<>();
-    private Map<String, List<Number>> timeseries = new HashMap<>();
+    private Map<String, TimeSeries<Date, Number>> timeseries = new HashMap<>();
 
     public StockData(String ticker, List<String> keys){
         this.ticker = ticker;
         for(String key : keys){
-            timeseries.put(key, new LinkedList<>());
+            timeseries.put(key, new TimeSeries<>());
         }
     }
 
     public int size(){
-        for(Map.Entry<String, List<Number>> e : timeseries.entrySet()){
-            return e.getValue().size();
-        }
-        return 0;
+        Optional<TimeSeries<Date, Number>> ts = timeseries.values().stream().findAny();
+        return ts.isEmpty() ? 0 : ts.get().size();
     }
 
     public int width(){
@@ -61,7 +57,8 @@ public class StockData {
 
         dates.add(date);
         for(int i = 0; i < keys.size(); ++i){
-            timeseries.get(keys.get(i)).add(values.get(i));
+            TimeSeries<Date, Number> ts = timeseries.get(keys.get(i));
+            ts.add(date, values.get(i));
         }
     }
 
