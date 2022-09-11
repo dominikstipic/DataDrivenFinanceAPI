@@ -7,28 +7,28 @@ import java.util.List;
 
 @Data
 public class Matrix {
-    private double[][] xss;
+    private double[][] data;
 
     public Matrix(List<List<Double>> xs) {
         int nRows = xs.size();
         int nCols = xs.get(0).size();
-        this.xss = new double[nRows][nCols];
+        this.data = new double[nRows][nCols];
     }
 
     public Matrix(int nRows, int nCols) {
-        this.xss = new double[nRows][nCols];
+        this.data = new double[nRows][nCols];
     }
 
     public int nRows(){
-        return xss.length;
+        return data.length;
     }
 
     public int nCols(){
-        return xss[0].length;
+        return data[0].length;
     }
 
     public void add(int i, int j, double value){
-        xss[i][j] = value;
+        data[i][j] = value;
     }
 
     @JsonIgnore
@@ -37,7 +37,7 @@ public class Matrix {
         for(int i = 0; i < nRows(); ++i){
             List<Double> xs = new ArrayList<>();
             for(int j = 0; j < nCols(); ++j){
-                xs.add(xss[i][i]);
+                xs.add(data[i][i]);
             }
             ds.add(xs);
         }
