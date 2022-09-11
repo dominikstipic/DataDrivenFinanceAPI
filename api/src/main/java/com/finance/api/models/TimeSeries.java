@@ -14,7 +14,7 @@ import java.util.stream.IntStream;
 @ToString
 @NoArgsConstructor
 @JsonSerialize(using = TimeSeriesSerializer.class)
-public class TimeSeries<D extends Comparable<D>, V extends Number> {
+public class TimeSeries<D extends Comparable, V extends Number> {
 
     @JsonIgnore
     private List<D> times = new LinkedList<>();

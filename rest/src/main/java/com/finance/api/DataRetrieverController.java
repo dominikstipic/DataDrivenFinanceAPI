@@ -4,24 +4,23 @@ package com.finance.api;
 import com.finance.api.models.StockData;
 import com.finance.api.models.TimeSeries;
 import com.finance.api.qualifiers.DataProvider;
-import com.finance.api.services.DataProcessingService;
 import com.finance.api.services.DataService;
 import javax.inject.Inject;
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Path("/data")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public class DataRetrieverController {
 
     @Inject
     @DataProvider("yahoo")
     private DataService dataService;
-
-    @Inject
-    private DataProcessingService<Date, Integer> dataProcessingService;
 
     @HEAD
     @Path("/")
