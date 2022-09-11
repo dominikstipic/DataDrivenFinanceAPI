@@ -5,6 +5,8 @@ import com.finance.api.models.StockData;
 import com.finance.api.models.TimeSeries;
 import com.finance.api.qualifiers.DataProvider;
 import com.finance.api.services.DataService;
+import com.finance.api.utils.Utils;
+
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -39,6 +41,12 @@ public class DataRetrieverController {
                 stream().
                 map(t -> dataService.getStockData(t, startDate, endDate)).
                 collect(Collectors.toList());
+
+        int nullIndex = Utils.indexOfNull(data);
+        if(nullIndex >= 0){
+            String msg = String.format("Ticker %s not found", tickers.get(nullIndex));
+            return Response.status(404, msg).build();
+        }
         return Response.ok(data).build();
     }
 
@@ -50,6 +58,8 @@ public class DataRetrieverController {
                                  @QueryParam("type") String dataType,
                                  @QueryParam("frequency") String frequency){
         StockData data = dataService.getStockData(ticker, startDate, endDate);
+        if(data == null)
+            return Response.status(404, "Ticker not found").build();
         return Response.ok(data).build();
     }
 
@@ -63,9 +73,8 @@ public class DataRetrieverController {
                                  @QueryParam("type") String dataType,
                                  @QueryParam("frequency") String frequency){
         TimeSeries<Date, Number> series = dataService.getTimeSeries(ticker, startDate, endDate, attribute);
-        if(series == null){
-            return Response.notAcceptable(null).build();
-        }
+        if(series == null)
+            return Response.status(404, "Data not found, check ticker or passed attribute!").build();
         return Response.ok(series).build();
     }
 

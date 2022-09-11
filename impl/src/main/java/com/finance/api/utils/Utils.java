@@ -19,6 +19,16 @@ public class Utils {
         }
         return ys;
     }
+
+    public static <T> int indexOfNull(List<T> ts){
+        for(int i = 0; i < ts.size(); ++i){
+            T t = ts.get(i);
+            if(t == null){
+                return i;
+            }
+        }
+        return -1;
+    }
     @SafeVarargs
     public static <T> List<T> toList(T ... ts){
         return new LinkedList<>(Arrays.asList(ts));

@@ -1,5 +1,6 @@
 package com.finance.api.services.yahoo;
 
+import com.finance.api.models.StochasticProcess;
 import com.finance.api.models.TimeSeries;
 import com.finance.api.providers.RestClient;
 import com.finance.api.qualifiers.ProviderClient;
@@ -10,6 +11,8 @@ import com.finance.api.utils.DateUtils;
 import javax.inject.Inject;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @DataProvider("yahoo")
 public class YahooDataService implements DataService {
@@ -22,14 +25,12 @@ public class YahooDataService implements DataService {
     @Inject
     private RestClient<StockData> client;
 
-    ///////////////////////////////////
-
     private StockData getData(String ticker, String startDate, String endDate){
         return client.provide(HOST_IP, PORT, ticker, startDate, endDate);
     }
 
     @Override
-    public StockData stockData(String ticker, String startDate, String endDate) {
+    public StockData getStockData(String ticker, String startDate, String endDate) {
         SimpleDateFormat dateFormat = DateUtils.FORMAT2;
         if(!DateUtils.isValidString(startDate, dateFormat) || !DateUtils.isValidString(endDate, dateFormat)){
             throw new IllegalArgumentException("The date cannot be parsed!");
@@ -40,9 +41,20 @@ public class YahooDataService implements DataService {
     }
 
     @Override
-    public TimeSeries<Date, Double> assetReturns(String ticker, String startDate, String endDate) {
-        StockData data = stockData(ticker, startDate, endDate);
-        TimeSeries<Date, Number> adjPrice = data.getTimeseries().get(YahooAttributes.ADJ_CLOSE.getValue());
-        return adjPrice.getReturns();
+    public TimeSeries<Date, Number> getTimeSeries(String ticker, String startDate, String endDate, String type) {
+        StockData data = getStockData(ticker, startDate, endDate);
+        if(data == null || !data.getTimeseries().containsKey(type)){
+            return null;
+        }
+        return data.getTimeseries().get(type);
+    }
+
+    @Override
+    public StochasticProcess<Date, Number> getProcess(List<String> ticker, String startDate, String endDate, String type) {
+        List<TimeSeries<Date, Number>> series = ticker.
+                stream().
+                map(t -> getTimeSeries(t, startDate, endDate, type)).
+                collect(Collectors.toList());
+        return new StochasticProcess<>(series);
     }
 }
