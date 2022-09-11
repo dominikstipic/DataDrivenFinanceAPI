@@ -18,8 +18,8 @@ public interface DataProcessingService<T extends Comparable, P extends Comparabl
     TimeSeries<Integer, Double> timeAverage(TimeSeries<T, Number> series, int windowSize);
 
 
-    List<Matrix> calcCorrelation(StochasticProcess<T, Number> process, int windowSize);
+    Estimator<Matrix> calcCorrelation(StochasticProcess<T, Number> process, int windowSize);
 
-    List<Matrix> calcCorrelation(StochasticProcess<T, Number> process);
+    Estimator<Matrix> calcCorrelation(StochasticProcess<T, Number> process);
 
 }

@@ -83,21 +83,21 @@ public class StatisticsController {
                                   @QueryParam("type") String dataType,
                                   @QueryParam("frequency") String frequency){
         StochasticProcess<Date, Number> portfolio = dataService.getProcess(tickers, startDate, endDate, attribute);
-        List<Matrix> correlations = dataProcessingService.calcCorrelation(portfolio);
+        Estimator<Matrix> correlations = dataProcessingService.calcCorrelation(portfolio);
         return Response.ok(correlations).build();
     }
 
     @POST
-    @Path("/{attribute}/corr/{n}")
+    @Path("/{attribute}/corr/{windowSize}")
     public Response getPortfolioCorrForGroups(List<String> tickers,
                                      @PathParam("attribute") String attribute,
-                                     @PathParam("n") int n,
+                                     @PathParam("windowSize") int windowSize,
                                      @QueryParam("start") String startDate,
                                      @QueryParam("end") String endDate,
                                      @QueryParam("type") String dataType,
                                      @QueryParam("frequency") String frequency){
         StochasticProcess<Date, Number> portfolio = dataService.getProcess(tickers, startDate, endDate, attribute);
-        List<Matrix> correlations = dataProcessingService.calcCorrelation(portfolio, n);
+        Estimator<Matrix> correlations = dataProcessingService.calcCorrelation(portfolio, windowSize);
         return Response.ok(correlations).build();
     }
 

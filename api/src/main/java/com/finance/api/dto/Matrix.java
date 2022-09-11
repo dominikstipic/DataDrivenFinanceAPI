@@ -1,34 +1,47 @@
 package com.finance.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 public class Matrix {
-
-    private String name;
-
-    private List<List<Double>> X;
+    private double[][] xss;
 
     public Matrix(List<List<Double>> xs) {
-        this.X = xs;
+        int nRows = xs.size();
+        int nCols = xs.get(0).size();
+        this.xss = new double[nRows][nCols];
     }
 
-    public Matrix(int nRows) {
-        for(int i = 0; i < nRows; ++i){
-            for(int j = 0; j < nRows; ++j){
-                X.add(new ArrayList<>());
+    public Matrix(int nRows, int nCols) {
+        this.xss = new double[nRows][nCols];
+    }
+
+    public int nRows(){
+        return xss.length;
+    }
+
+    public int nCols(){
+        return xss[0].length;
+    }
+
+    public void add(int i, int j, double value){
+        xss[i][j] = value;
+    }
+
+    @JsonIgnore
+    public List<List<Double>> getAsList() {
+        List<List<Double>> ds = new ArrayList<>();
+        for(int i = 0; i < nRows(); ++i){
+            List<Double> xs = new ArrayList<>();
+            for(int j = 0; j < nCols(); ++j){
+                xs.add(xss[i][i]);
             }
+            ds.add(xs);
         }
-    }
-
-    public void addRow(List<Double> row){
-        X.add(row);
-    }
-
-    public List<List<Double>> getX() {
-        return X;
+        return ds;
     }
 
 }
