@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>    
+<html>    
+<head>
+    <title>Timeseries</title>
+</head>
+<body>
+  
+<div id="chartContainer" style="height: 400px; width: 100%;"></div>
+
+<script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.stock.min.js"></script>
+<script language="javascript" type="text/javascript">
+        const SERVER = "http://localhost:8080/api/data";
+        function timeseries_ploter(ticker, data){
+            const len = data[0].dataPoints.length;
+            var stockChart = new CanvasJS.StockChart("chartContainer",{
+            title:{
+              text: ticker
+            },
+            animationEnabled: true,
+            exportEnabled: true,
+            charts: [{
+              axisX: {
+                crosshair: {
+                  enabled: true,
+                  snapToDataPoint: true
+                }
+              },
+              axisY: {
+                crosshair: {
+                  enabled: true
+                }
+              },
+              data: data
+            }],
+            rangeSelector: {
+              inputFields: {
+                startValue: len/2 - len/4,
+                endValue: len/2 + len/4,
+                valueFormatString: "###0"
+              }
+            }});
+            stockChart.render();
+        }
+        function prepate_data(data){
+          var dataSeries = { type: "spline" }
+          let dataPoints = []
+          for(var i = 0; i < data.time.length; ++i){
+            var item = {
+              x: i,
+              y: data.values[i]
+            };
+            dataPoints.push(item);
+          }
+          dataSeries.dataPoints = dataPoints;
+          return [dataSeries];
+        }
+
+        function display(host_url){
+          let queryParams = new URLSearchParams(window.location.search);
+          let ticker = queryParams.get("ticker");
+          let start = queryParams.get("start");
+          let end = queryParams.get("end");
+          host_url += "/" + ticker;
+
+          var url = new URL(host_url);
+          url.searchParams.append("start", start);
+          url.searchParams.append("end", end);
+          console.log(url);
+
+          fetch(url).
+            then(response => {
+              if (!response.ok)
+                  throw new Error("HTTP error: " + response.status);
+              return response.json();
+            })
+            .then(stockData => {
+                var data = stockData.timeseries.close;
+                data = prepate_data(data);
+                timeseries_ploter(ticker, data);
+            });
+
+        }
+        let chartContainer = document.querySelector('#chartContainer');
+        chartContainer.addEventListener("onload", display(SERVER));
+    </script>
+</body>
+</html>
