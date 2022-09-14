@@ -1,10 +1,16 @@
 # Compiled class file
-*.class
-
 target/
-target/*
-.idea/*
-.idea
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### IntelliJ IDEA ###
+.idea/libraries/
+.idea/*.xml
+*.iws
+*.iml
+*.ipr
+
 
 # Log file
 *.log
