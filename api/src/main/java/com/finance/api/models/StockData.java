@@ -11,7 +11,7 @@ public class StockData {
     private final String ticker;
     @JsonIgnore
     private List<Date> dates = new LinkedList<>();
-    private Map<String, TimeSeries<Date, Number>> timeseries = new HashMap<>();
+    private Map<String, TimeSeries<Date>> timeseries = new HashMap<>();
 
     public StockData(String ticker, List<String> keys){
         this.ticker = ticker;
@@ -21,7 +21,7 @@ public class StockData {
     }
 
     public int size(){
-        Optional<TimeSeries<Date, Number>> ts = timeseries.values().stream().findAny();
+        Optional<TimeSeries<Date>> ts = timeseries.values().stream().findAny();
         return ts.isEmpty() ? 0 : ts.get().size();
     }
 
@@ -57,8 +57,8 @@ public class StockData {
 
         dates.add(date);
         for(int i = 0; i < keys.size(); ++i){
-            TimeSeries<Date, Number> ts = timeseries.get(keys.get(i));
-            ts.add(date, values.get(i));
+            TimeSeries<Date> ts = timeseries.get(keys.get(i));
+            ts.add(date, values.get(i).doubleValue());
         }
     }
 

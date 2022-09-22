@@ -10,12 +10,10 @@ import java.util.List;
 public interface DataService {
     StockData getStockData(String ticker, String startDate, String endDate);
 
-    TimeSeries<Date, Number> getTimeSeries(String ticker, String startDate, String endDate, String type);
+    TimeSeries<Date> getTimeSeries(String ticker, String startDate, String endDate, String type);
 
-    StochasticProcess<Date, Number> getProcess(List<String> ticker,
-                                               String startDate,
-                                               String endDate,
-                                               String type);
-
-
+    StochasticProcess<Date> getProcess(List<String> ticker,
+                                       String startDate,
+                                       String endDate,
+                                       String type);
 }

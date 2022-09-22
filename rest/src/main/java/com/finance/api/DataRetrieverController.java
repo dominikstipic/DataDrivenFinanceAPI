@@ -63,7 +63,6 @@ public class DataRetrieverController {
         return Response.ok(data).build();
     }
 
-
     @GET
     @Path("/{ticker}/{attribute}")
     public Response getDataByGet(@PathParam("ticker") String ticker,
@@ -72,12 +71,9 @@ public class DataRetrieverController {
                                  @QueryParam("end") String endDate,
                                  @QueryParam("type") String dataType,
                                  @QueryParam("frequency") String frequency){
-        TimeSeries<Date, Number> series = dataService.getTimeSeries(ticker, startDate, endDate, attribute);
+        TimeSeries<Date> series = dataService.getTimeSeries(ticker, startDate, endDate, attribute);
         if(series == null)
             return Response.status(404, "Data not found, check ticker or passed attribute!").build();
         return Response.ok(series).build();
     }
-
-
-
 }

@@ -3,7 +3,6 @@ import com.finance.api.dto.Sample;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -11,19 +10,19 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class StochasticProcess<D extends Comparable, V extends Number> implements Iterable<TimeSeries<D, V>> {
-    private List<TimeSeries<D, V>> realizations;
+public class StochasticProcess<D extends Comparable> implements Iterable<TimeSeries<D>> {
+    private List<TimeSeries<D>> realizations;
 
-    public void add(TimeSeries<D, V> series){
+    public void add(TimeSeries<D> series){
         realizations.add(series);
     }
 
-    public TimeSeries<D, V> getSample(int i){
+    public TimeSeries<D> getSample(int i){
         return realizations.get(i);
     }
 
     public List<D> getTime(){
-        TimeSeries<D, V> series = realizations.stream().findAny().get();
+        TimeSeries<D> series = realizations.stream().findAny().get();
         return series.getTimes();
     }
 
@@ -32,19 +31,19 @@ public class StochasticProcess<D extends Comparable, V extends Number> implement
     }
 
     public int timeLength(){
-        TimeSeries<D, V> series = realizations.stream().findAny().get();
+        TimeSeries<D> series = realizations.stream().findAny().get();
         return series.size();
     }
 
     @Override
-    public Iterator<TimeSeries<D, V>> iterator() {
+    public Iterator<TimeSeries<D>> iterator() {
         return realizations.iterator();
     }
 
-    public TimeSeries<Integer, Double> mapAcrossTime(Function<TimeSeries<D,V>, Double> statistic){
-        TimeSeries<Integer, Double> result = new TimeSeries<>();
+    public TimeSeries<Integer> mapAcrossTime(Function<TimeSeries<D>, Double> statistic){
+        TimeSeries<Integer> result = new TimeSeries<>();
         int k = 0;
-        for(TimeSeries<D,V> xs : realizations){
+        for(TimeSeries<D> xs : realizations){
             double estimate = statistic.apply(xs);
             result.add(k, estimate);
             ++k;
@@ -52,16 +51,16 @@ public class StochasticProcess<D extends Comparable, V extends Number> implement
         return result;
     }
 
-    public List<V> valuesAtT(D t){
+    public List<Double> valuesAtT(D t){
         return realizations.stream().map(xs -> xs.get(t)).collect(Collectors.toList());
     }
 
-    public TimeSeries<Integer, Double> mapAcrossSpace(Function<TimeSeries<?, V>, Double> statistic){
-        TimeSeries<Integer, Double> result = new TimeSeries<>();
+    public TimeSeries<Integer> mapAcrossSpace(Function<TimeSeries<? extends Comparable>, Double> statistic){
+        TimeSeries<Integer> result = new TimeSeries<>();
         List<D> times = realizations.stream().findAny().get().getTimes();
         for(int i = 0; i < timeLength(); ++i){
             D t = times.get(i);
-            TimeSeries<Integer, V> indexedSeries = TimeSeries.indexedSeries(valuesAtT(t));
+            TimeSeries<Integer> indexedSeries = TimeSeries.indexedSeries(valuesAtT(t));
             double estimated = statistic.apply(indexedSeries);
             result.add(i, estimated);
         }
@@ -95,6 +94,15 @@ public class StochasticProcess<D extends Comparable, V extends Number> implement
             ys.add(row);
         }
         return ys;
+    }
+
+    public StochasticProcess<D> applyOnTimeSeries(Function<TimeSeries<D>, TimeSeries<D>> function){
+        List<TimeSeries<D>> result = new LinkedList<>();
+        for(TimeSeries<D> ts : realizations){
+            TimeSeries<D> mapped = function.apply(ts);
+            result.add(mapped.doubleSeries());
+        }
+        return new StochasticProcess<>(result);
     }
 
     // public StochasticProcess<D, V> invertedProcess(){}

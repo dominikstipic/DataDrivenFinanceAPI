@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Function;
 
 @Path("/stats")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -23,7 +24,7 @@ public class StatisticsController {
     @DataProvider("yahoo")
     private DataService dataService;
     @Inject
-    private DataProcessingService<Date, Integer> dataProcessingService;
+    private DataProcessingService<Date> dataProcessingService;
 
     @GET
     @Path("/{ticker}/{attribute}/returns")
@@ -33,11 +34,11 @@ public class StatisticsController {
                                @QueryParam("end") String endDate,
                                @QueryParam("type") String dataType,
                                @QueryParam("frequency") String frequency){
-        TimeSeries<Date, Number> series = dataService.getTimeSeries(ticker, startDate, endDate, attribute);
+        TimeSeries<Date> series = dataService.getTimeSeries(ticker, startDate, endDate, attribute);
         if(series == null){
             return Response.notAcceptable(null).build();
         }
-        TimeSeries<Date, Double> returns = dataProcessingService.assetReturns(series);
+        TimeSeries<Date> returns = dataProcessingService.assetReturns(series);
         return Response.ok(returns).build();
     }
 
@@ -49,7 +50,7 @@ public class StatisticsController {
                                @QueryParam("end") String endDate,
                                @QueryParam("type") String dataType,
                                @QueryParam("frequency") String frequency){
-        TimeSeries<Date, Number> series = dataService.getTimeSeries(ticker, startDate, endDate, attribute);
+        TimeSeries<Date> series = dataService.getTimeSeries(ticker, startDate, endDate, attribute);
         if(series == null ){
             return Response.notAcceptable(null).build();
         }
@@ -66,11 +67,11 @@ public class StatisticsController {
                                        @QueryParam("end") String endDate,
                                        @QueryParam("type") String dataType,
                                        @QueryParam("frequency") String frequency){
-        TimeSeries<Date, Number> series = dataService.getTimeSeries(ticker, startDate, endDate, attribute);
+        TimeSeries<Date> series = dataService.getTimeSeries(ticker, startDate, endDate, attribute);
         if(series == null){
             return Response.notAcceptable(null).build();
         }
-        TimeSeries<Integer, Double> averaged = dataProcessingService.timeAverage(series, n);
+        TimeSeries<Integer> averaged = dataProcessingService.timeAverage(series, n);
         return Response.ok(averaged).build();
     }
 
@@ -82,7 +83,7 @@ public class StatisticsController {
                                   @QueryParam("end") String endDate,
                                   @QueryParam("type") String dataType,
                                   @QueryParam("frequency") String frequency){
-        StochasticProcess<Date, Number> portfolio = dataService.getProcess(tickers, startDate, endDate, attribute);
+        StochasticProcess<Date> portfolio = dataService.getProcess(tickers, startDate, endDate, attribute);
         Estimator<Matrix> correlations = dataProcessingService.calcCorrelation(portfolio);
         return Response.ok(correlations).build();
     }
@@ -90,15 +91,32 @@ public class StatisticsController {
     @POST
     @Path("/{attribute}/corr/{windowSize}")
     public Response getPortfolioCorrForGroups(List<String> tickers,
+                                              @PathParam("attribute") String attribute,
+                                              @PathParam("windowSize") int windowSize,
+                                              @QueryParam("start") String startDate,
+                                              @QueryParam("end") String endDate,
+                                              @QueryParam("type") String dataType,
+                                              @QueryParam("frequency") String frequency){
+        StochasticProcess<Date> portfolio = dataService.getProcess(tickers, startDate, endDate, attribute);
+        Estimator<Matrix> correlations = dataProcessingService.calcCorrelation(portfolio, windowSize);
+        return Response.ok(correlations).build();
+    }
+
+    @POST
+    @Path("/{attribute}/returns/corr")
+    public Response getReturnsPortfolioCorr(List<String> tickers,
                                      @PathParam("attribute") String attribute,
-                                     @PathParam("windowSize") int windowSize,
                                      @QueryParam("start") String startDate,
                                      @QueryParam("end") String endDate,
                                      @QueryParam("type") String dataType,
                                      @QueryParam("frequency") String frequency){
-        StochasticProcess<Date, Number> portfolio = dataService.getProcess(tickers, startDate, endDate, attribute);
-        Estimator<Matrix> correlations = dataProcessingService.calcCorrelation(portfolio, windowSize);
+        StochasticProcess<Date> portfolio = dataService.getProcess(tickers, startDate, endDate, attribute);
+        Function<TimeSeries<Date>, TimeSeries<Date>> toReturnsFunction = ts -> dataProcessingService.assetReturns(ts);
+        StochasticProcess<Date> returnsPortfolio = portfolio.applyOnTimeSeries(toReturnsFunction);
+        Estimator<Matrix> correlations = dataProcessingService.calcCorrelation(returnsPortfolio);
         return Response.ok(correlations).build();
     }
+
+
 
 }

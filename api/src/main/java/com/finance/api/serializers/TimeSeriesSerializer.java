@@ -9,22 +9,22 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TimeSeriesSerializer<D extends Comparable, V extends Number> extends StdSerializer<TimeSeries<D, V>> {
+public class TimeSeriesSerializer<D extends Comparable> extends StdSerializer<TimeSeries<D>> {
     
     public TimeSeriesSerializer() {
         this(null);
     }
   
-    public TimeSeriesSerializer(Class<TimeSeries<D,V>> t) {
+    public TimeSeriesSerializer(Class<TimeSeries<D>> t) {
         super(t);
     }
 
     @Override
     public void serialize(
-            TimeSeries<D, V> series, JsonGenerator jgen, SerializerProvider provider)
+            TimeSeries<D> series, JsonGenerator jgen, SerializerProvider provider)
       throws IOException {
-        List<String> times = series.getTimes().stream().map(d -> d.toString()).collect(Collectors.toList());
-        List<V> values = series.getValues();
+        List<String> times = series.getTimes().stream().map(Object::toString).collect(Collectors.toList());
+        List<Double> values = series.getValues();
         jgen.writeStartObject();
         jgen.writeObjectField("time", times);
         jgen.writeObjectField("values", values);

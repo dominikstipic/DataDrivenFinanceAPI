@@ -11,7 +11,7 @@ public class ApplicationController extends Application {
         return Set.of(
                 DataRetrieverController.class,
                 StatisticsController.class,
-                HtmlController.class
+                CORSFilter.class
         );
     }
 }

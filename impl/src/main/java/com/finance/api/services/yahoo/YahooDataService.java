@@ -41,7 +41,7 @@ public class YahooDataService implements DataService {
     }
 
     @Override
-    public TimeSeries<Date, Number> getTimeSeries(String ticker, String startDate, String endDate, String type) {
+    public TimeSeries<Date> getTimeSeries(String ticker, String startDate, String endDate, String type) {
         StockData data = getStockData(ticker, startDate, endDate);
         if(data == null || !data.getTimeseries().containsKey(type)){
             return null;
@@ -50,8 +50,8 @@ public class YahooDataService implements DataService {
     }
 
     @Override
-    public StochasticProcess<Date, Number> getProcess(List<String> ticker, String startDate, String endDate, String type) {
-        List<TimeSeries<Date, Number>> series = ticker.
+    public StochasticProcess<Date> getProcess(List<String> ticker, String startDate, String endDate, String type) {
+        List<TimeSeries<Date>> series = ticker.
                 stream().
                 map(t -> getTimeSeries(t, startDate, endDate, type)).
                 collect(Collectors.toList());

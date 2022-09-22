@@ -8,18 +8,17 @@ import com.finance.api.models.TimeSeries;
 import java.util.List;
 
 
-public interface DataProcessingService<T extends Comparable, P extends Comparable> {
-    TimeSeries<T, Double> assetReturns(TimeSeries<T, Number> series);
+public interface DataProcessingService<T extends Comparable> {
+    TimeSeries<T> assetReturns(TimeSeries<T> series);
 
-    TimeSeries<P, Double> meanEnsembleAverage(StochasticProcess<P, Number> process);
+    TimeSeries<T> meanEnsembleAverage(StochasticProcess<T> process);
 
-    Estimator<Double> timeAverage(TimeSeries<T, Number> series);
+    Estimator<Double> timeAverage(TimeSeries<T> series);
 
-    TimeSeries<Integer, Double> timeAverage(TimeSeries<T, Number> series, int windowSize);
+    TimeSeries<Integer> timeAverage(TimeSeries<? extends Comparable> series, int windowSize);
 
+    Estimator<Matrix> calcCorrelation(StochasticProcess<T> process, int windowSize);
 
-    Estimator<Matrix> calcCorrelation(StochasticProcess<T, Number> process, int windowSize);
-
-    Estimator<Matrix> calcCorrelation(StochasticProcess<T, Number> process);
+    Estimator<Matrix> calcCorrelation(StochasticProcess<T> process);
 
 }
