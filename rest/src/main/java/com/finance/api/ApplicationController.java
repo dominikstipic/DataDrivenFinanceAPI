@@ -10,8 +10,7 @@ public class ApplicationController extends Application {
     public Set<Class<?>> getClasses() {
         return Set.of(
                 DataRetrieverController.class,
-                StatisticsController.class,
-                HtmlController.class
+                StatisticsController.class
         );
     }
 }
