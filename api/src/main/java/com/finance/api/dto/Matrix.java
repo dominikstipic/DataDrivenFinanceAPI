@@ -9,12 +9,6 @@ import java.util.List;
 public class Matrix {
     private double[][] data;
 
-    public Matrix(List<List<Double>> xs) {
-        int nRows = xs.size();
-        int nCols = xs.get(0).size();
-        this.data = new double[nRows][nCols];
-    }
-
     public Matrix(int nRows, int nCols) {
         this.data = new double[nRows][nCols];
     }

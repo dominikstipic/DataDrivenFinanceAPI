@@ -14,35 +14,35 @@ import java.util.stream.IntStream;
 @ToString
 @NoArgsConstructor
 @JsonSerialize(using = TimeSeriesSerializer.class)
-public class TimeSeries<D extends Comparable, V extends Number> {
+public class TimeSeries<D extends Comparable> {
 
     @JsonIgnore
     private List<D> times = new LinkedList<>();
 
-    private final Map<D, V> series = new HashMap<>();
+    private final Map<D, Double> series = new HashMap<>();
 
-    public TimeSeries(List<D> ts, List<V> vs){
+    public TimeSeries(List<D> ts, List<Double> vs){
         times = ts;
         for(int i = 0; i < ts.size(); ++i){
             series.put(ts.get(i), vs.get(i));
         }
     }
-    public static <V extends Number> TimeSeries<Integer, V> indexedSeries(List<V> values){
+    public static TimeSeries<Integer> indexedSeries(List<Double> values){
         List<Integer> idx = IntStream.range(0, values.size()).boxed().collect(Collectors.toList());
         return new TimeSeries<>(idx, values);
     }
 
-    public void add(D time, V value){
+    public void add(D time, Double value){
         series.put(time, value);
         times.add(time);
         Collections.sort(times);
     }
 
-    public V get(D time){
+    public Double get(D time){
         return series.get(time);
     }
 
-    public V get(int idx){
+    public Double get(int idx){
         D t = times.get(idx);
         return series.get(t);
     }
@@ -52,13 +52,13 @@ public class TimeSeries<D extends Comparable, V extends Number> {
     }
 
     @JsonIgnore
-    public TimeSeries<D, Double> getReturns(){
-        TimeSeries<D, Double> returns = new TimeSeries<>();
+    public TimeSeries<D> getReturns(){
+        TimeSeries<D> returns = new TimeSeries<>();
         for(int i = 1; i < times.size(); ++i){
             D prev = times.get(i-1);
             D current = times.get(i);
-            double prevValue = series.get(prev).doubleValue();
-            double currentValue = series.get(current).doubleValue();
+            double prevValue = series.get(prev);
+            double currentValue = series.get(current);
             double currentReturn = (currentValue - prevValue) / prevValue;
             returns.add(current, currentReturn);
         }
@@ -69,19 +69,19 @@ public class TimeSeries<D extends Comparable, V extends Number> {
         return times;
     }
 
-    public List<V> getValues() {
+    public List<Double> getValues() {
         return times.
                 stream().
                 map(series::get).
                 collect(Collectors.toList());
     }
 
-    public List<TimeSeries<D, V>> windowDecomposition(int windowSize) {
-        List<TimeSeries<D, V>> series = new LinkedList<>();
-        TimeSeries<D, V> current = new TimeSeries<>();
+    public List<TimeSeries<D>> windowDecomposition(int windowSize) {
+        List<TimeSeries<D>> series = new LinkedList<>();
+        TimeSeries<D> current = new TimeSeries<>();
         int k = 0;
         for(D t : times){
-            V value = get(t);
+            Double value = get(t);
             current.add(t, value);
             ++k;
             if(k == windowSize){
@@ -93,16 +93,16 @@ public class TimeSeries<D extends Comparable, V extends Number> {
         return series;
     }
 
-    public List<TimeSeries<D, V>> uniformDecomposition(int n) {
+    public List<TimeSeries<D>> uniformDecomposition(int n) {
         n = size() / n;
         return windowDecomposition(n);
     }
 
-    public TimeSeries<Integer, V> indexedTimeSeries() {
-        TimeSeries<Integer, V> indexed = new TimeSeries<>();
+    public TimeSeries<Integer> indexedTimeSeries() {
+        TimeSeries<Integer> indexed = new TimeSeries<>();
         int k = 0;
         for(D d : this.times){
-            V value = series.get(d);
+            Double value = series.get(d);
             indexed.add(k, value);
             ++k;
         }
@@ -116,4 +116,12 @@ public class TimeSeries<D extends Comparable, V extends Number> {
                 collect(Collectors.toList()));
     }
 
+    public TimeSeries<D> doubleSeries(){
+        TimeSeries<D> ts = new TimeSeries<>();
+        for (D date : times) {
+            double value = series.get(date);
+            ts.add(date, value);
+        }
+        return ts;
+    }
 }
