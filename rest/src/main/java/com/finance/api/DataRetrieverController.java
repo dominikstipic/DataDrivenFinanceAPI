@@ -63,6 +63,7 @@ public class DataRetrieverController {
         return Response.ok(data).build();
     }
 
+    @GET
     @Path("/{ticker}/{attribute}")
     public Response getDataByGet(@PathParam("ticker") String ticker,
                                  @PathParam("attribute") String attribute,
@@ -75,7 +76,4 @@ public class DataRetrieverController {
             return Response.status(404, "Data not found, check ticker or passed attribute!").build();
         return Response.ok(series).build();
     }
-
-
-
 }
