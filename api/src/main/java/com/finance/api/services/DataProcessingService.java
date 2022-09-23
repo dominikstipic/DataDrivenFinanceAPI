@@ -11,6 +11,8 @@ import java.util.List;
 public interface DataProcessingService<T extends Comparable> {
     TimeSeries<T> assetReturns(TimeSeries<T> series);
 
+    TimeSeries<T> assetCumulativeReturns(TimeSeries<T> series);
+
     TimeSeries<T> meanEnsembleAverage(StochasticProcess<T> process);
 
     Estimator<Double> timeAverage(TimeSeries<T> series);

@@ -43,6 +43,22 @@ public class StatisticsController {
     }
 
     @GET
+    @Path("/{ticker}/{attribute}/returns/cumulative")
+    public Response getCumulativeReturns(@PathParam("ticker") String ticker,
+                               @PathParam("attribute") String attribute,
+                               @QueryParam("start") String startDate,
+                               @QueryParam("end") String endDate,
+                               @QueryParam("type") String dataType,
+                               @QueryParam("frequency") String frequency){
+        TimeSeries<Date> series = dataService.getTimeSeries(ticker, startDate, endDate, attribute);
+        if(series == null){
+            return Response.notAcceptable(null).build();
+        }
+        TimeSeries<Date> returns = dataProcessingService.assetCumulativeReturns(series);
+        return Response.ok(returns).build();
+    }
+
+    @GET
     @Path("/{ticker}/{attribute}/average")
     public Response getAverage(@PathParam("ticker") String ticker,
                                @PathParam("attribute") String attribute,

@@ -14,13 +14,24 @@ import java.util.stream.IntStream;
 @ToString
 @NoArgsConstructor
 @JsonSerialize(using = TimeSeriesSerializer.class)
-public class TimeSeries<D extends Comparable> {
+public class TimeSeries<D extends Comparable> implements Iterator<Map.Entry<D, Double>>, Iterable<Map.Entry<D, Double>> {
 
+    private int currentIteratorIndex = 0;
     @JsonIgnore
     private List<D> times = new LinkedList<>();
 
     private final Map<D, Double> series = new HashMap<>();
 
+    //////////// METHODS /////////////
+
+    public TimeSeries<D> copy(){
+        TimeSeries<D> result = new TimeSeries<>();
+        for(D t : times){
+            Double value = series.get(t);
+            result.add(t, value);
+        }
+        return result;
+    }
     public TimeSeries(List<D> ts, List<Double> vs){
         times = ts;
         for(int i = 0; i < ts.size(); ++i){
@@ -123,5 +134,29 @@ public class TimeSeries<D extends Comparable> {
             ts.add(date, value);
         }
         return ts;
+    }
+
+    ///////////////////// ITERATORS ///////////////////////////////
+    @Override
+    public boolean hasNext() {
+        return currentIteratorIndex < this.times.size();
+    }
+
+    @Override
+    public Map.Entry<D, Double> next() {
+        if(hasNext()){
+            D date = this.times.get(currentIteratorIndex);
+            Double value = this.series.get(date);
+            ++currentIteratorIndex;
+            return Map.entry(date, value);
+        }
+        else{
+            throw new NoSuchElementException("The iterator has no more elements!");
+        }
+    }
+
+    @Override
+    public Iterator<Map.Entry<D, Double>> iterator() {
+        return this.copy();
     }
 }
