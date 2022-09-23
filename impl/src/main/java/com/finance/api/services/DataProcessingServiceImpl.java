@@ -10,6 +10,7 @@ import com.finance.api.processors.SampleStats;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,20 @@ public class DataProcessingServiceImpl<T extends Comparable> implements DataProc
     @Override
     public TimeSeries<T> assetReturns(TimeSeries<T> series) {
         return series.getReturns();
+    }
+
+    @Override
+    public TimeSeries<T> assetCumulativeReturns(TimeSeries<T> series) {
+        TimeSeries<T> returns = series.getReturns();
+        TimeSeries<T> cumReturns = new TimeSeries<>();
+        double prod = 1;
+        for(Map.Entry<T, Double> e: returns){
+            T t = e.getKey();
+            double r = e.getValue();
+            prod *= (1+r);
+            cumReturns.add(t, prod);
+        }
+        return cumReturns;
     }
 
     @Override
