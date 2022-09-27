@@ -17,8 +17,12 @@ public class StochasticProcess<D extends Comparable> implements Iterable<TimeSer
         realizations.add(series);
     }
 
-    public TimeSeries<D> getSample(int i){
+    public TimeSeries<D> getRealization(int i){
         return realizations.get(i);
+    }
+
+    public List<TimeSeries<D>> getRealizations(){
+        return realizations;
     }
 
     public List<D> getTime(){
@@ -82,7 +86,6 @@ public class StochasticProcess<D extends Comparable> implements Iterable<TimeSer
     }
 
     public static <T> List<List<T>> invert(List<List<T>> xs){
-        int nRows = xs.size();
         int nCols = xs.get(0).size();
         List<List<T>> ys = new LinkedList<>();
         for(int i = 0; i < nCols; ++i){
@@ -100,7 +103,7 @@ public class StochasticProcess<D extends Comparable> implements Iterable<TimeSer
         List<TimeSeries<D>> result = new LinkedList<>();
         for(TimeSeries<D> ts : realizations){
             TimeSeries<D> mapped = function.apply(ts);
-            result.add(mapped.doubleSeries());
+            result.add(mapped);
         }
         return new StochasticProcess<>(result);
     }

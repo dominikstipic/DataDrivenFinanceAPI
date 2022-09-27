@@ -127,15 +127,6 @@ public class TimeSeries<D extends Comparable> implements Iterator<Map.Entry<D, D
                 collect(Collectors.toList()));
     }
 
-    public TimeSeries<D> doubleSeries(){
-        TimeSeries<D> ts = new TimeSeries<>();
-        for (D date : times) {
-            double value = series.get(date);
-            ts.add(date, value);
-        }
-        return ts;
-    }
-
     ///////////////////// ITERATORS ///////////////////////////////
     @Override
     public boolean hasNext() {

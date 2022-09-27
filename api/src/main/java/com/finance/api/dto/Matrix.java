@@ -25,6 +25,10 @@ public class Matrix {
         data[i][j] = value;
     }
 
+    public double get(int i, int j){
+        return data[i][j];
+    }
+
     @JsonIgnore
     public List<List<Double>> getAsList() {
         List<List<Double>> ds = new ArrayList<>();

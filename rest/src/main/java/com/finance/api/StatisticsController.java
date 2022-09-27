@@ -1,7 +1,9 @@
 package com.finance.api;
 
+import com.finance.api.dao.portfolio.PortfolioInfo;
 import com.finance.api.dto.Estimator;
 import com.finance.api.dto.Matrix;
+import com.finance.api.dto.PortfolioAllocationDTO;
 import com.finance.api.models.StochasticProcess;
 import com.finance.api.models.TimeSeries;
 import com.finance.api.qualifiers.DataProvider;
@@ -133,6 +135,37 @@ public class StatisticsController {
         return Response.ok(correlations).build();
     }
 
+    @GET
+    @Path("/{ticker}/{attribute}/returns/info")
+    public Response singleAssetInfo(@PathParam("ticker") String ticker,
+                                   @PathParam("attribute") String attribute,
+                                   @QueryParam("start") String startDate,
+                                   @QueryParam("end") String endDate,
+                                   @QueryParam("type") String dataType,
+                                   @QueryParam("frequency") String frequency){
+        TimeSeries<Date> series = dataService.getTimeSeries(ticker, startDate, endDate, attribute);
+        if(series == null){
+            return Response.notAcceptable(null).build();
+        }
+        TimeSeries<Date> returns = series.getReturns();
+        PortfolioInfo info = dataProcessingService.getPortfolioInfo(returns);
+        return Response.ok(info).build();
+    }
 
+    @POST
+    @Path("/{attribute}/returns/info")
+    public Response portfolioInfo(PortfolioAllocationDTO allocation,
+                                  @PathParam("attribute") String attribute,
+                                  @QueryParam("start") String startDate,
+                                  @QueryParam("end") String endDate,
+                                  @QueryParam("type") String dataType,
+                                  @QueryParam("frequency") String frequency){
+        List<String> tickers = allocation.tickers();
+        List<Double> weights = allocation.weights(tickers);
+        StochasticProcess<Date> portfolio = dataService.getProcess(tickers, startDate, endDate, attribute);
+        StochasticProcess<Date> returnsPortfolio = portfolio.applyOnTimeSeries(ts -> dataProcessingService.assetReturns(ts));
+        PortfolioInfo info = dataProcessingService.getPortfolioInfo(returnsPortfolio, weights);
+        return Response.ok(info).build();
+    }
 
 }

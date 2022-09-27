@@ -1,5 +1,6 @@
 package com.finance.api.services;
 
+import com.finance.api.dao.portfolio.PortfolioInfo;
 import com.finance.api.dto.Estimator;
 import com.finance.api.dto.Matrix;
 import com.finance.api.models.StochasticProcess;
@@ -22,5 +23,9 @@ public interface DataProcessingService<T extends Comparable> {
     Estimator<Matrix> calcCorrelation(StochasticProcess<T> process, int windowSize);
 
     Estimator<Matrix> calcCorrelation(StochasticProcess<T> process);
+
+    PortfolioInfo getPortfolioInfo(StochasticProcess<T> process, List<Double> weights);
+
+    PortfolioInfo getPortfolioInfo(TimeSeries<T> process);
 
 }

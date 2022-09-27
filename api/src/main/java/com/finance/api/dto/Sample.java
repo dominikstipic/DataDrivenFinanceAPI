@@ -47,11 +47,11 @@ public class Sample implements Iterable<Double>{
     }
 
     public double var(){
-        double secondMoment = powerSample.apply(this, 2).mean();
-        double mean = mean();
-        return secondMoment - mean*mean;
+        double mu = mean();
+        double S = sample.stream().mapToDouble(x -> Math.pow(x - mu, 2)).sum();
+        int N = size();
+        return S/(N-1);
     }
-
     public double get(int idx){
         return sample.get(idx);
     }
